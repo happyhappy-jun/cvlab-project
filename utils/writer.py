@@ -17,3 +17,9 @@ class Writer(SummaryWriter):
             self.tensorboard.add_scalar(logging_name, value, step)
         if self.cfg.log.use_wandb:
             wandb.log({logging_name: value}, step=step)
+    
+    def logging_with_epoch(self, value, step, epoch, logging_name):
+        if self.cfg.log.use_tensorboard:
+            self.tensorboard.add_scalar(logging_name, value, epoch)
+        if self.cfg.log.use_wandb:
+            wandb.log({logging_name: value, "epoch":epoch}, step=step)

@@ -1,45 +1,69 @@
 # @package _global_
-name: 'First_training'
-working_dir: ???
+name: 'densenet_training_100epoch'
+working_dir: saved
 device: 'cuda'
 random_seed: ~
-num_epoch: 10000  # max iteration
+num_epoch: 500  # max iteration
+#avaiable: resent, wide-resnet, 
+# model:
+#   type: "wide-resnet"
 data:
+  mode: "cifar100"
+  transform: 
+    cifar100: 
+      mean: 
+        - 0.5071
+        - 0.4867
+        - 0.4408
+      std: 
+        - 0.2675
+        - 0.2565
+        - 0.2761
   train_dir: 'dataset/meta/train'
   test_dir: 'dataset/meta/test'
   file_format: '*.file_extension'
   use_background_generator: true
   divide_dataset_per_gpu: true
+  
 train:
-  num_workers: 4
+  num_workers: 5
   batch_size: 64
-  optimizer:
-    mode: 'adam'
-    adam:
-      lr: 0.001
-      betas:
-        - 0.9
-        - 0.999
 test:
-  num_workers: 4
+  num_workers: 5
   batch_size: 64
 model:
-  ~
+  type: "densenet"
+  optimizer: 'SGD'  
+
+  wide-resnet:
+    SGD:
+      lr: 0.1
+      momentum: 0.9
+      weight_decay: 5e-4
+      nesterov: True
+  densenet:
+    SGD:
+      lr: 0.1
+      momentum: 0.9
+      weight_decay: 1e-4
+    SAM:
+      lr: 0.1
+      momentum: 0.9
 dist:
   master_addr: 'localhost'
-  master_port: '12355'
+  master_port: '8088'
   mode: 'nccl'
-  gpus: 0 # 0 for not using dist, -1 for using all gpus
-  timeout: 30 # seconds for timeout. In nccl mode, set ~ for not using timeout
+  gpus: 5 # 0 for not using dist, -1 for using all gpus
+  timeout: ~ # seconds for timeout. In nccl mode, set ~ for not using timeout
 log:
-  use_tensorboard: true
-  use_wandb: false
+  use_tensorboard: false
+  use_wandb: true
   wandb_init_conf:
-    name: ${name}
+    name: ~
     entity: ~
-    project: ~
-  summary_interval: 1 # interval of step
-  chkpt_interval: 10 # interval of epoch
+    project: "cvlab-cifar100-project"
+  summary_interval: 30 # interval of step
+  chkpt_interval: 100 # interval of epoch
   chkpt_dir: 'chkpt'
 load:
   wandb_load_path: ~

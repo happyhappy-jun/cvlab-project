@@ -16,7 +16,7 @@ from omegaconf import OmegaConf, open_dict
 
 from dataset.dataloader import DataloaderMode, create_dataloader
 from model.model import Model
-from model.model_arch import Net_arch
+from model.model_arch import *
 from utils.test_model import test_model
 from utils.train_model import train_model
 from utils.utils import get_logger, is_logging_process, set_random_seed
@@ -63,7 +63,7 @@ def train_loop(rank, cfg):
         # set log/checkpoint dir
         os.makedirs(cfg.log.chkpt_dir, exist_ok=True)
         # set writer (tensorboard / wandb)
-        writer = Writer(cfg, "tensorboard")
+        writer = Writer(cfg, "wandb")
         cfg_str = OmegaConf.to_yaml(cfg)
         logger.info("Config:\n" + cfg_str)
         if cfg.data.train_dir == "" or cfg.data.test_dir == "":
@@ -72,20 +72,20 @@ def train_loop(rank, cfg):
         logger.info("Set up train process")
         logger.info("BackgroundGenerator is turned off when Distributed running is on")
 
-        # download MNIST dataset before making dataloader
-        # TODO: This is example code. You should change this part as you need
-        _ = torchvision.datasets.MNIST(
+        _ = torchvision.datasets.CIFAR100(
             root=hydra.utils.to_absolute_path("dataset/meta"),
             train=True,
             transform=torchvision.transforms.ToTensor(),
             download=True,
         )
-        _ = torchvision.datasets.MNIST(
+        _ = torchvision.datasets.CIFAR100(
             root=hydra.utils.to_absolute_path("dataset/meta"),
             train=False,
             transform=torchvision.transforms.ToTensor(),
             download=True,
         )
+    else:
+        writer = None
     # Sync dist processes (because of download MNIST Dataset)
     if cfg.dist.gpus != 0:
         dist.barrier()
@@ -99,10 +99,11 @@ def train_loop(rank, cfg):
     test_loader = create_dataloader(cfg, DataloaderMode.test, rank)
 
     # init Model
-    net_arch = Net_arch(cfg)
+    net_arch = build_model(cfg)
     loss_f = torch.nn.CrossEntropyLoss()
     model = Model(cfg, net_arch, loss_f, rank)
-
+    if rank == 0:
+        logger.info(model.optimizer.state_dict())
     # load training state / network checkpoint
     if cfg.load.resume_state_path is not None:
         model.load_training_state()
@@ -121,7 +122,7 @@ def train_loop(rank, cfg):
             if model.epoch > cfg.num_epoch:
                 break
             train_model(cfg, model, train_loader, writer)
-            if model.epoch % cfg.log.chkpt_interval == 0:
+            if model.step % cfg.log.chkpt_interval == 0:
                 model.save_network()
                 model.save_training_state()
             test_model(cfg, model, test_loader, writer)
@@ -149,6 +150,10 @@ def main(hydra_cfg):
 
     if hydra_cfg.dist.gpus < 0:
         hydra_cfg.dist.gpus = torch.cuda.device_count()
+        hydra_cfg.dist.master_port = os.environ["MASTER_PORT"]
+        hydra_cfg.dist.master_addr = os.environ["MASTER_ADDR"]
+        print(hydra_cfg.dist)
+
     if hydra_cfg.device == "cpu" or hydra_cfg.dist.gpus == 0:
         hydra_cfg.dist.gpus = 0
         train_loop(0, hydra_cfg)

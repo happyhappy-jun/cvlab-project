@@ -1,0 +1,123 @@
+SLURM_SUBMIT_DIR=/home/junyoon/project/cvlab-project
+CUDA_HOME=/opt/ohpc/pub/apps/cuda-11.1
+CUDA_VISIBLE_DEVICES=
+CUDA_VERSION=11.1
+0: n12
+1: n12
+3: n12
+4: n12
+2: n12
+2: /home/junyoon
+4: /home/junyoon
+0: /home/junyoon
+1: /home/junyoon
+3: /home/junyoon
+2: Mon Feb  8 14:59:26 KST 2021
+4: Mon Feb  8 14:59:26 KST 2021
+3: Mon Feb  8 14:59:26 KST 2021
+0: Mon Feb  8 14:59:26 KST 2021
+1: Mon Feb  8 14:59:26 KST 2021
+source  /home/junyoon/anaconda3/etc/profile.d/conda.sh
+wandb: Currently logged in as: happyhappy (use `wandb login --relogin` to force relogin)
+2021-02-08 14:59:38.399323: I tensorflow/stream_executor/platform/default/dso_loader.cc:49] Successfully opened dynamic library libcudart.so.11.0
+wandb: Tracking run with wandb version 0.10.17
+wandb: Syncing run wobbly-cherry-71
+wandb: ⭐️ View project at https://wandb.ai/happyhappy/cvlab-cifar100-project
+wandb: 🚀 View run at https://wandb.ai/happyhappy/cvlab-cifar100-project/runs/2rq7vrvj
+wandb: Run data is saved locally in /home/junyoon/saved/outputs/densenet_training_100epoch-2021-02-08_14-59-29/wandb/run-20210208_145936-2rq7vrvj
+wandb: Run `wandb offline` to turn off syncing.
+
+[2021-02-08 14:59:40,948][trainer.py][INFO] - Config:
+name: densenet_training_100epoch
+working_dir: saved
+device: 0
+random_seed: 7743
+num_epoch: 500
+data:
+  mode: cifar100
+  transform:
+    cifar100:
+      mean:
+      - 0.5071
+      - 0.4867
+      - 0.4408
+      std:
+      - 0.2675
+      - 0.2565
+      - 0.2761
+  train_dir: dataset/meta/train
+  test_dir: dataset/meta/test
+  file_format: '*.file_extension'
+  use_background_generator: false
+  divide_dataset_per_gpu: true
+train:
+  num_workers: 5
+  batch_size: 64
+test:
+  num_workers: 5
+  batch_size: 64
+model:
+  type: densenet
+  optimizer: SGD
+  wide-resnet:
+    SGD:
+      lr: 0.1
+      momentum: 0.9
+      weight_decay: 0.0005
+      nesterov: true
+  densenet:
+    SGD:
+      lr: 0.1
+      momentum: 0.9
+      weight_decay: 0.0001
+    SAM:
+      lr: 0.1
+      momentum: 0.9
+dist:
+  master_addr: localhost
+  master_port: '8088'
+  mode: nccl
+  gpus: 5
+  timeout: null
+log:
+  use_tensorboard: false
+  use_wandb: true
+  wandb_init_conf:
+    name: null
+    entity: null
+    project: cvlab-cifar100-project
+  summary_interval: 30
+  chkpt_interval: 100
+  chkpt_dir: chkpt
+load:
+  wandb_load_path: null
+  network_chkpt_path: null
+  strict_load: false
+  resume_state_path: null
+job_logging_cfg:
+  version: 1
+  formatters:
+    simple:
+      format: '%(message)s'
+    detailed:
+      format: '[%(asctime)s][%(name)s][%(levelname)s] - %(message)s'
+  handlers:
+    console:
+      class: logging.StreamHandler
+      formatter: detailed
+      stream: ext://sys.stdout
+    file:
+      class: logging.FileHandler
+      formatter: detailed
+      filename: trainer.log
+  root:
+    level: INFO
+    handlers:
+    - console
+    - file
+  disable_existing_loggers: false
+
+[2021-02-08 14:59:40,949][trainer.py][INFO] - Set up train process
+[2021-02-08 14:59:40,949][trainer.py][INFO] - BackgroundGenerator is turned off when Distributed running is on
+Downloading https://www.cs.toronto.edu/~kriz/cifar-100-python.tar.gz to /home/junyoon/saved/outputs/densenet_training_100epoch-2021-02-08_14-59-29/dataset/meta/cifar-100-python.tar.gz
+0.0%0.0%0.0%0.0%0.0%0.0%0.0%0.0%0.0%0.0%0.0%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.1%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.2%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.3%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.4%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.5%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.6%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.7%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.8%0.9%0.9%0.9%0.9%0.9%0.9%0.9%0.9%0.9%0.9%0.9%0.9%0.9%0.9%0.9%0.9%0.9%0.9%0.9%0.9%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.0%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.1%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.2%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.3%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.4%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.5%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.6%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.7%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.8%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%1.9%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.0%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.1%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.2%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.3%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.4%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.5%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.6%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.7%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.8%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%2.9%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.0%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.1%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.2%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.3%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.4%3.5%3.5%3.5%3.5%3.5%3.5%3.5%3.5%3.5%3.5%3.5%3.5%3.5%

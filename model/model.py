@@ -9,7 +9,8 @@ from omegaconf import OmegaConf
 from torch.nn.parallel import DistributedDataParallel as DDP
 
 from utils.utils import get_logger, is_logging_process
-
+from optimizer.optimizer import *
+from optimizer.lr_scheduler import *
 
 class Model:
     def __init__(self, cfg, net_arch, loss_f, rank=0):
@@ -25,15 +26,9 @@ class Model:
         self.epoch = -1
         self._logger = get_logger(cfg, os.path.basename(__file__))
 
-        # init optimizer
-        optimizer_mode = self.cfg.train.optimizer.mode
-        if optimizer_mode == "adam":
-            self.optimizer = torch.optim.Adam(
-                self.net.parameters(), **(self.cfg.train.optimizer[optimizer_mode])
-            )
-        else:
-            raise Exception("%s optimizer not supported" % optimizer_mode)
-
+        self.optimizer = get_optimizer(cfg, self.net)
+        self.scheduler = get_scheduler(cfg, self.optimizer)
+        
         # init loss
         self.loss_f = loss_f
         self.log = OmegaConf.create()
@@ -45,15 +40,28 @@ class Model:
         self.GT = data.get("GT")
 
     def optimize_parameters(self):
-        self.net.train()
-        self.optimizer.zero_grad()
-        output = self.run_network()
-        loss_v = self.loss_f(output, self.GT)
-        loss_v.backward()
-        self.optimizer.step()
+        if self.cfg.model.optimizer != "SAM":
+            self.net.train()
+            self.optimizer.zero_grad()
+            output = self.run_network()
+            loss_v = self.loss_f(output, self.GT)
+            loss_v.backward()
+            self.optimizer.step()
+            # set log
+            self.log.loss_v = loss_v.item()
+        else:
+            self.net.train()
+            self.optimizer.zero_grad()
 
-        # set log
-        self.log.loss_v = loss_v.item()
+            def closure():
+                self.optimizer.zero_grad()
+                output = self.run_network()
+                loss_v = self.loss_f(output, self.GT)
+                loss_v.backward()
+                return loss_v
+            loss_v = self.optimizer.step(closure)
+            self.log.loss_v = loss_v.item()
+
 
     def inference(self):
         self.net.eval()

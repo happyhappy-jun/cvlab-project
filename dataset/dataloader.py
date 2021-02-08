@@ -8,7 +8,7 @@ import torchvision
 from prefetch_generator import BackgroundGenerator
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.distributed import DistributedSampler
-
+import torchvision.transforms as transforms
 
 class DataloaderMode(Enum):
     train = auto()
@@ -61,22 +61,36 @@ class Dataset_(Dataset):
     def __init__(self, cfg, mode):
         self.cfg = cfg
         self.mode = mode
+        self.transformer = {
+            "train": transforms.Compose([
+                    transforms.RandomCrop(32, padding=4),
+                    transforms.RandomHorizontalFlip(),
+                    transforms.ToTensor(),
+                    transforms.Normalize(**(cfg.data.transform[cfg.data.mode]))
+                ]), # meanstd transformation
+
+            "test" : transforms.Compose([
+                    transforms.ToTensor(),
+                    transforms.Normalize(**(cfg.data.transform[cfg.data.mode])),
+                ])
+        }
+
         if mode is DataloaderMode.train:
             # self.data_dir = self.cfg.data.train_dir
             # TODO: This is example code. You should change this part as you need
-            self.dataset = torchvision.datasets.MNIST(
+            self.dataset = torchvision.datasets.CIFAR100(
                 root=hydra.utils.to_absolute_path("dataset/meta"),
                 train=True,
-                transform=torchvision.transforms.ToTensor(),
+                transform=self.transformer["train"],
                 download=False,
             )
         elif mode is DataloaderMode.test:
             # self.data_dir = self.cfg.data.test_dir
             # TODO: This is example code. You should change this part as you need
-            self.dataset = torchvision.datasets.MNIST(
+            self.dataset = torchvision.datasets.CIFAR100(
                 root=hydra.utils.to_absolute_path("dataset/meta"),
                 train=False,
-                transform=torchvision.transforms.ToTensor(),
+                transform=self.transformer["test"],
                 download=False,
             )
         else:
