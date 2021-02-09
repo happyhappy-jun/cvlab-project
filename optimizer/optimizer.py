@@ -1,6 +1,7 @@
 import torch
 from torch.optim._multi_tensor import SGD
 from typing import Iterable
+import wandb
 
 class SAMSGD(SGD):
     """ SGD wrapped with Sharp-Aware Minimization

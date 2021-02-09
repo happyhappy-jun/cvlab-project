@@ -4,6 +4,7 @@ import torch.nn.functional as F
 import model.resnet
 import model.wide_resnet 
 import model.densenet
+from efficientnet_pytorch import EfficientNet
 
 # class Net_arch(nn.Module):
 #     # Network architecture
@@ -32,3 +33,5 @@ def build_model(cfg):
         return model.wide_resnet.Wide_ResNet(depth = 40, widen_factor=14, dropout_rate=0.3, num_classes=100)
     if cfg.model.type == "densenet":
         return model.densenet.DenseNet(growthRate=12, depth=100, reduction=0.5, bottleneck=True, nClasses=100)
+    if cfg.model.type == "EfficientNet-B0":
+        return EfficientNet.from_pretrained('efficientnet-b0', num_classes=100, batch_norm_momentum=0.9)

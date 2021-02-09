@@ -9,6 +9,8 @@ from prefetch_generator import BackgroundGenerator
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.distributed import DistributedSampler
 import torchvision.transforms as transforms
+from dataset.autoaugment import CIFAR10Policy
+from dataset.cutout import Cutout
 
 class DataloaderMode(Enum):
     train = auto()
@@ -36,20 +38,20 @@ def create_dataloader(cfg, mode, rank):
     if mode is DataloaderMode.train:
         return data_loader(
             dataset=dataset,
-            batch_size=cfg.train.batch_size,
+            batch_size=cfg.batch_size,
             shuffle=train_use_shuffle,
             sampler=sampler,
-            num_workers=cfg.train.num_workers,
+            num_workers=cfg.num_workers,
             pin_memory=True,
             drop_last=True,
         )
     elif mode is DataloaderMode.test:
         return data_loader(
             dataset=dataset,
-            batch_size=cfg.test.batch_size,
+            batch_size=cfg.batch_size,
             shuffle=False,
             sampler=sampler,
-            num_workers=cfg.test.num_workers,
+            num_workers=cfg.num_workers,
             pin_memory=True,
             drop_last=True,
         )
@@ -63,9 +65,10 @@ class Dataset_(Dataset):
         self.mode = mode
         self.transformer = {
             "train": transforms.Compose([
-                    transforms.RandomCrop(32, padding=4),
+                    transforms.RandomCrop(32, padding=4, fill=128),
                     transforms.RandomHorizontalFlip(),
                     transforms.ToTensor(),
+                    Cutout(n_holes=1, length=16), 
                     transforms.Normalize(**(cfg.data.transform[cfg.data.mode]))
                 ]), # meanstd transformation
 

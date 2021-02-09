@@ -38,3 +38,11 @@ def get_timestamp():
 def get_commit_hash():
     message = subprocess.check_output(["git", "rev-parse", "--short", "HEAD"])
     return message.strip().decode("utf-8")
+
+def continue_train(cfg, model):
+    cont = True
+    if cfg.num_epoch.enable:
+        cont = model.epoch > cfg.num_epoch.total
+    elif cfg.num_step.enable:
+        cont = model.step > cfg.num_step.total
+    return cont

@@ -19,7 +19,7 @@ from model.model import Model
 from model.model_arch import *
 from utils.test_model import test_model
 from utils.train_model import train_model
-from utils.utils import get_logger, is_logging_process, set_random_seed
+from utils.utils import get_logger, is_logging_process, set_random_seed, continue_train
 from utils.writer import Writer
 
 
@@ -119,13 +119,17 @@ def train_loop(rank, cfg):
         else:
             epoch_step = cfg.dist.gpus
         for model.epoch in itertools.count(model.epoch + 1, epoch_step):
-            if model.epoch > cfg.num_epoch:
+            if continue_train(cfg, model):
                 break
             train_model(cfg, model, train_loader, writer)
             if model.step % cfg.log.chkpt_interval == 0:
                 model.save_network()
                 model.save_training_state()
             test_model(cfg, model, test_loader, writer)
+
+            if model.scheduler is not None:
+                model.scheduler.step()
+
         if is_logging_process():
             logger.info("End of Train")
     except Exception as e:

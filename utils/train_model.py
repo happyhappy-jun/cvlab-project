@@ -11,7 +11,7 @@ def train_model(cfg, model, train_loader, writer):
         model.feed_data(input=input_, GT=target)
         model.optimize_parameters()
         loss = model.log.loss_v
-        model.scheduler.step()
+
         model.step += 1
         
         if is_logging_process() and (loss > 1e8 or math.isnan(loss)):

@@ -3,10 +3,14 @@ name: 'densenet_training_100epoch'
 working_dir: saved
 device: 'cuda'
 random_seed: ~
-num_epoch: 500  # max iteration
-#avaiable: resent, wide-resnet, 
-# model:
-#   type: "wide-resnet"
+num_epoch: 
+  enable: False
+  total: 300  # max iteration
+num_step:
+  enable: True
+  total: 40000
+
+
 data:
   mode: "cifar100"
   transform: 
@@ -25,14 +29,11 @@ data:
   use_background_generator: true
   divide_dataset_per_gpu: true
   
-train:
-  num_workers: 5
-  batch_size: 64
-test:
-  num_workers: 5
-  batch_size: 64
+
+num_workers: 6
+batch_size: 64
 model:
-  type: "densenet"
+  type: "EfficientNet-B0"
   optimizer: 'SGD'  
 
   wide-resnet:
@@ -49,11 +50,34 @@ model:
     SAM:
       lr: 0.1
       momentum: 0.9
+  EfficientNet-B0:
+    SGD:
+      lr: 0.1
+      momentum: 0.9
+      nesterov: true
+      weight_decay: 1e-4
+
+sweep:
+  enable: true
+  config:
+    name: 'First Sweep'
+    method: 'grid'
+    metric:
+      name: 'test_accuracy'
+      goal: 'maximize'
+    parameter:
+      lr:
+        min: 1e-4
+        max: 1e-1
+      weight_decay:
+        min: 1e-6
+        max: 1e-3
+
 dist:
   master_addr: 'localhost'
   master_port: '8088'
   mode: 'nccl'
-  gpus: 5 # 0 for not using dist, -1 for using all gpus
+  gpus: -1 # 0 for not using dist, -1 for using all gpus
   timeout: ~ # seconds for timeout. In nccl mode, set ~ for not using timeout
 log:
   use_tensorboard: false
@@ -61,7 +85,7 @@ log:
   wandb_init_conf:
     name: ~
     entity: ~
-    project: "cvlab-cifar100-project"
+    project: "cvlab-cifar100-efficient-net"
   summary_interval: 30 # interval of step
   chkpt_interval: 100 # interval of epoch
   chkpt_dir: 'chkpt'

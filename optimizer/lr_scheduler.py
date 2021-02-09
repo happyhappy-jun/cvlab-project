@@ -21,7 +21,9 @@ def get_scheduler(cfg, optimizer):
     elif model_type == "densenet" and optimizer_mode == "SAM":
         scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones = [total_epochs*0.3, total_epochs*0.6, total_epochs*0.8], gamma = 0.2)
     elif model_type == "densenet" and optimizer_mode == "SGD":
-        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones = [total_epochs*0.3, total_epochs*0.6, total_epochs*0.8], gamma = 0.2)
+        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones = [total_epochs*0.5, total_epochs*0.75], gamma = 0.1)
+    elif model_type == "EfficientNet-B0" and optimizer_mode == "SGD":
+        scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones = [40, 60, 80], gamma = 0.1)
     else:
         scheduler = None
     return scheduler

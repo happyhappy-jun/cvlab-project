@@ -5,10 +5,10 @@
 #SBATCH -t  10:00:00            # Run time (hh:mm:ss) - 1.5 hours
 
 #### Select  GPU
-#SBATCH -p titanxp          # queue  name  or  partiton name gpu-titanxp, gpu-2080ti
+# SBATCH -p 2080ti          # queue  name  or  partiton name gpu-titanxp, gpu-2080ti
 
 ## gpu 2장
-##SBATCH   --gres=gpu:5
+##SBATCH   --gres=gpu:6
 
 ## 노드 지정하지않기
 #SBATCH   --nodes=1
@@ -16,17 +16,19 @@
 ## gpu 가 2장이면  --ntasks=2, --tasks-per-node=2 , --cpus-per-task=1
 ## gpu 가 4장이면  --ntasks=4, --tasks-per-node=4 , --cpus-per-task=1
 
-#SBTACH   --ntasks=5
-#SBATCH   --tasks-per-node=5
+#SBTACH   --ntasks=6
+#SBATCH   --tasks-per-node=6
 #SBATCH   --cpus-per-task=1
 
-WORLD_SIZE_JOB=\$SLURM_NTASKS
-RANK_NODE=\$SLURM_NODEID
-PROC_PER_NODE=5
+# WORLD_SIZE_JOB=\$SLURM_NTASKS
+# RANK_NODE=\$SLURM_NODEID
+# PROC_PER_NODE=
+
+# DDP_BACKEND=c10d
+
+
 export MASTER_ADDR=$(hostname)
 export MASTER_PORT="6819"
-DDP_BACKEND=c10d
-
 cd  $SiLURM_SUBMIT_DIR
 
 echo "SLURM_SUBMIT_DIR=$SLURM_SUBMIT_DIR"
