@@ -1,10 +1,14 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import model.resnet
-import model.wide_resnet 
-import model.densenet
+from torchvision.models import resnet
+from torchvision.models.resnet import wide_resnet50_2
+from torchvision.models import resnet50
+from model import resnet
+from  model import wide_resnet 
+from model import densenet
 from efficientnet_pytorch import EfficientNet
+
 
 # class Net_arch(nn.Module):
 #     # Network architecture
@@ -26,12 +30,21 @@ from efficientnet_pytorch import EfficientNet
 #         x = self.fc(x)  # x: (B,10)
 #         return x
 
+def set_parameter_requires_grad(model, feature_extracting):
+    if feature_extracting:
+        for param in model.parameters():
+            param.requires_grad = False
+
 def build_model(cfg):               
     if cfg.model.type == "resnet":
-        return model.resnet.resnet152()
+        model_ft = resnet50(pretrained=True)
+        set_parameter_requires_grad(model_ft, False)
+        num_ftrs = model_ft.fc.in_features
+        model_ft.fc = nn.Linear(num_ftrs, 100)
+        return model_ft
     if cfg.model.type == "wide-resnet":
-        return model.wide_resnet.Wide_ResNet(depth = 40, widen_factor=14, dropout_rate=0.3, num_classes=100)
+        return wide_resnet50_2(pretrained=True, num_classes = 100)
     if cfg.model.type == "densenet":
-        return model.densenet.DenseNet(growthRate=12, depth=100, reduction=0.5, bottleneck=True, nClasses=100)
+        return densenet.DenseNet(growthRate=12, depth=100, reduction=0.5, bottleneck=True, nClasses=100)
     if cfg.model.type == "EfficientNet-B0":
         return EfficientNet.from_pretrained('efficientnet-b0', num_classes=100, batch_norm_momentum=0.9)

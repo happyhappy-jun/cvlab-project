@@ -9,8 +9,11 @@ from prefetch_generator import BackgroundGenerator
 from torch.utils.data import DataLoader, Dataset
 from torch.utils.data.distributed import DistributedSampler
 import torchvision.transforms as transforms
+from torchvision.transforms.transforms import Resize
 from dataset.autoaugment import CIFAR10Policy
 from dataset.cutout import Cutout
+# from randaugment import CIFAR10PolicyAll
+from RandAugment import RandAugment
 
 class DataloaderMode(Enum):
     train = auto()
@@ -64,20 +67,26 @@ class Dataset_(Dataset):
         self.cfg = cfg
         self.mode = mode
         self.transformer = {
-            "train": transforms.Compose([
-                    transforms.RandomCrop(32, padding=4, fill=128),
-                    transforms.RandomHorizontalFlip(),
-                    transforms.ToTensor(),
-                    Cutout(n_holes=1, length=16), 
-                    transforms.Normalize(**(cfg.data.transform[cfg.data.mode]))
+            "train": transforms.Compose( 
+                [
+                    # RandAugment(3, 4),
+                    transforms.RandomCrop(32, padding=4, fill=128), # fill parameter needs torchvision installed from source
+                    transforms.RandomHorizontalFlip(), 
+
+                    transforms.Resize(224),
+                    # CIFAR10PolicyAll(),
+                    transforms.ToTensor(), 
+                    Cutout(n_holes=1, length=16),
+                    transforms.Normalize(**(cfg.data[cfg.data.mode]))
                 ]), # meanstd transformation
 
             "test" : transforms.Compose([
+                    transforms.Resize(224),
                     transforms.ToTensor(),
-                    transforms.Normalize(**(cfg.data.transform[cfg.data.mode])),
+                    transforms.Normalize(**(cfg.data[cfg.data.mode])),
                 ])
         }
-
+        # self.transformer["train"].insert(0, RandAugment(3, 5))
         if mode is DataloaderMode.train:
             # self.data_dir = self.cfg.data.train_dir
             # TODO: This is example code. You should change this part as you need

@@ -18,6 +18,8 @@ def get_scheduler(cfg, optimizer):
     if model_type == "wide-resnet" and optimizer_mode == "SGD":
         lambda1 = lambda epoch: wide_resnet_lr(cfg.train.optimizer.SGD.lr, epoch)
         scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lr_lambda = lambda1)
+    elif model_type == "resnet" and optimizer_mode == "SGD":
+        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max = cfg.num_epoch.total)
     elif model_type == "densenet" and optimizer_mode == "SAM":
         scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones = [total_epochs*0.3, total_epochs*0.6, total_epochs*0.8], gamma = 0.2)
     elif model_type == "densenet" and optimizer_mode == "SGD":

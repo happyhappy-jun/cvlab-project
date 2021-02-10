@@ -5,10 +5,10 @@
 #SBATCH -t  10:00:00            # Run time (hh:mm:ss) - 1.5 hours
 
 #### Select  GPU
-# SBATCH -p 2080ti          # queue  name  or  partiton name gpu-titanxp, gpu-2080ti
+#SBATCH -p 2080ti          # queue  name  or  partiton name gpu-titanxp, gpu-2080ti
 
 ## gpu 2장
-##SBATCH   --gres=gpu:6
+#SBATCH   --gres=gpu:4
 
 ## 노드 지정하지않기
 #SBATCH   --nodes=1
@@ -16,8 +16,8 @@
 ## gpu 가 2장이면  --ntasks=2, --tasks-per-node=2 , --cpus-per-task=1
 ## gpu 가 4장이면  --ntasks=4, --tasks-per-node=4 , --cpus-per-task=1
 
-#SBTACH   --ntasks=6
-#SBATCH   --tasks-per-node=6
+#SBTACH   --ntasks=4
+#SBATCH   --tasks-per-node=4
 #SBATCH   --cpus-per-task=1
 
 # WORLD_SIZE_JOB=\$SLURM_NTASKS
@@ -48,7 +48,7 @@ echo "source  $HOME/anaconda3/etc/profile.d/conda.sh"
 source $HOME/anaconda3/etc/profile.d/conda.sh
 
 conda activate pytorch
-python /home/junyoon/project/cvlab-project/trainer.py 
+python trainer.py 
 
 date
 
